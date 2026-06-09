@@ -1,150 +1,70 @@
-// Initialize AOS
-AOS.init({
-    duration: 800,
-    easing: 'ease-in-out',
-    once: true
-});
+AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
 
-// Modal Management
 const modal = document.getElementById('enquiryModal');
 const floatingBtn = document.getElementById('floatingEnquiry');
 const closeBtn = document.getElementById('closeModal');
 const enquiryLinks = document.querySelectorAll('a[href="#enquiry"]');
+const hamburger = document.querySelector('.hamburger');
+const mobileNav = document.getElementById('mobileNav');
 
-// Open modal
 function openModal() {
-    modal.classList.add('active');
+  if (modal) modal.classList.add('active');
 }
 
-// Close modal
 function closeModal() {
-    modal.classList.remove('active');
+  if (modal) modal.classList.remove('active');
 }
 
-floatingBtn.addEventListener('click', openModal);
-closeBtn.addEventListener('click', closeModal);
-enquiryLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        openModal();
-    });
-});
+if (floatingBtn) floatingBtn.addEventListener('click', openModal);
+if (closeBtn) closeBtn.addEventListener('click', closeModal);
+enquiryLinks.forEach(link => link.addEventListener('click', e => { e.preventDefault(); openModal(); }));
+if (modal) modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-// Close modal on background click
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-});
-
-// Close on ESC key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
-});
-
-// Form submission
-document.getElementById('enquiry').addEventListener('submit', (e) => {
+const enquiryForm = document.getElementById('enquiry');
+if (enquiryForm) {
+  enquiryForm.addEventListener('submit', (e) => {
     e.preventDefault();
     alert('Thank you for your enquiry! We will contact you soon.');
     closeModal();
     e.target.reset();
-});
-
-// Products Slider
-const track = document.querySelector('.products-track');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-let currentScroll = 0;
-const scrollAmount = 350;
-
-nextBtn.addEventListener('click', () => {
-    currentScroll += scrollAmount;
-    track.style.transform = `translateX(-${currentScroll}px)`;
-});
-
-prevBtn.addEventListener('click', () => {
-    currentScroll = Math.max(0, currentScroll - scrollAmount);
-    track.style.transform = `translateX(-${currentScroll}px)`;
-});
-
-// Stat Counter Animation
-function animateCounter() {
-    const counters = document.querySelectorAll('.stat-number');
-    counters.forEach(counter => {
-        const target = parseInt(counter.getAttribute('data-target'));
-        let current = 0;
-        const increment = target / 50;
-        
-        const updateCount = () => {
-            if (current < target) {
-                current += increment;
-                counter.textContent = Math.floor(current);
-                setTimeout(updateCount, 30);
-            } else {
-                counter.textContent = target + '+';
-            }
-        };
-        
-        updateCount();
-    });
+  });
 }
 
-// Trigger animation on scroll
-const aboutSection = document.querySelector('.about-preview');
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            animateCounter();
-            observer.unobserve(entry.target);
-        }
-    });
-});
-
-observer.observe(aboutSection);
-
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        if (href !== '#enquiry') {
-            e.preventDefault();
-            const target = document.querySelector(href);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    });
-});
-
-// Navbar scroll effect
-let lastScrollTop = 0;
-const navbar = document.querySelector('.navbar');
-
-window.addEventListener('scroll', () => {
-    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    if (scrollTop > 100) {
-        navbar.style.boxShadow = '0 5px 20px rgba(221, 1, 37, 0.15)';
-    } else {
-        navbar.style.boxShadow = '0 2px 15px rgba(221, 1, 37, 0.1)';
-    }
-    
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-});
-
-// Newsletter form
-document.querySelector('.newsletter-form').addEventListener('submit', (e) => {
+const newsletterForm = document.querySelector('.newsletter-form');
+if (newsletterForm) {
+  newsletterForm.addEventListener('submit', (e) => {
     e.preventDefault();
     alert('Thank you for subscribing!');
     e.target.reset();
+  });
+}
+
+if (hamburger && mobileNav) {
+  const toggleNav = () => mobileNav.classList.toggle('active');
+  hamburger.addEventListener('click', toggleNav);
+  hamburger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') toggleNav();
+  });
+}
+
+const smoothLinks = document.querySelectorAll('a[href^="#"]');
+smoothLinks.forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    const href = this.getAttribute('href');
+    if (href.length > 1) {
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (mobileNav) mobileNav.classList.remove('active');
+      }
+    }
+  });
 });
 
-// Hamburger menu
-const hamburger = document.querySelector('.hamburger');
-const navLinks = document.querySelector('.nav-links');
-const navLinksRight = document.querySelector('.nav-links-right');
-
-if (hamburger) {
-    hamburger.addEventListener('click', () => {
-        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-        navLinksRight.style.display = navLinksRight.style.display === 'flex' ? 'none' : 'flex';
-    });
-}
+const navbar = document.querySelector('.navbar');
+window.addEventListener('scroll', () => {
+  if (!navbar) return;
+  navbar.style.boxShadow = window.scrollY > 100 ? '0 5px 20px rgba(221, 1, 37, 0.15)' : '0 2px 15px rgba(221, 1, 37, 0.1)';
+});
